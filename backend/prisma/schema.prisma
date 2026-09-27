@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  Free
+  Pro
+  Enterprise
+}
+
+enum MessageRole {
+  user
+  assistant
+  system
+}
+
+enum MessageFeedback {
+  positive
+  negative
+}
+
+enum DocumentStatus {
+  processing
+  ready
+  error
+}
+
+model User {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  email              String              @unique
+  passwordHash       String?
+  avatar             String?
+  plan               Plan                @default(Free)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  sessions           Session[]
+  oauthAccounts      OAuthAccount[]
+  passwordResetTokens PasswordResetToken[]
+  conversations      Conversation[]
+  documents          Document[]
+  memories           Memory[]
+  settings           UserSettings?
+  collections        DocumentCollection[]
+  productivityTasks  ProductivityTask[]
+  savedPrompts       SavedPrompt[]
+  workspaceNotes     WorkspaceNote[]
+  auditLogs          AuditLog[]
+  sharedMessages     SharedMessage[]
+}
+
+model OAuthAccount {
+  id                String   @id @default(uuid()) @db.Uuid
+  provider          String
+  providerAccountId String
+  userId            String   @db.Uuid
+  createdAt         DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@unique([userId, provider])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  tokenHash String   @unique
+  userId    String   @db.Uuid
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  tokenHash String    @unique
+  userId    String    @db.Uuid
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Agent {
+  id           String   @id
+  name         String
+  shortName    String
+  description  String
+  systemPrompt String
+  provider     String   @default("google")
+  model        String   @default("gemini-2.5-flash")
+  capabilities Json
+  color        String
+  gradient     String
+  icon         String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  conversations Conversation[]
+  documents     Document[]
+  messages      Message[]
+  userSettings  UserSettings[]
+}
+
+model Conversation {
+  id        String   @id @default(uuid()) @db.Uuid
+  title     String   @default("New Conversation")
+  pinned    Boolean  @default(false)
+  archived  Boolean  @default(false)
+  userId    String   @db.Uuid
+  agentId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agent    Agent    @relation(fields: [agentId], references: [id])
+  messages Message[]
+  shares   SharedMessage[]
+
+  @@index([userId, updatedAt])
+  @@index([userId, pinned])
+  @@index([userId, archived])
+  @@index([agentId, updatedAt])
+}
+
+model Message {
+  id             String      @id @default(uuid()) @db.Uuid
+  role           MessageRole
+  content        String
+  conversationId String      @db.Uuid
+  agentId        String?
+  feedback       MessageFeedback?
+  metadata       Json?
+  createdAt      DateTime    @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  agent        Agent?       @relation(fields: [agentId], references: [id])
+  shares       SharedMessage[]
+
+  @@index([conversationId, createdAt])
+}
+
+// Backs the chat "Share" action: a revocable, unguessable public link to a
+// single point-in-time snapshot of one message (not a live/editable share of
+// the whole conversation). Created by GET-or-create so re-sharing the same
+// message reuses the same link instead of accumulating dead rows.
+model SharedMessage {
+  id             String    @id @default(uuid()) @db.Uuid
+  token          String    @unique
+  messageId      String    @db.Uuid
+  conversationId String    @db.Uuid
+  userId         String    @db.Uuid
+  // Snapshot of content at share time, so editing/deleting the original
+  // message later doesn't retroactively change or break a link already
+  // handed out.
+  contentSnapshot String
+  agentName      String?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+
+  message      Message      @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId])
+  @@index([token])
+}
+
+model Document {
+  id          String         @id @default(uuid()) @db.Uuid
+  name        String
+  mimeType    String
+  sizeBytes   BigInt
+  storageKey  String?
+  status      DocumentStatus @default(processing)
+  error       String?
+  pages       Int?
+  userId      String         @db.Uuid
+  agentId     String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  agent Agent? @relation(fields: [agentId], references: [id])
+  collections DocumentCollectionItem[]
+
+  @@index([userId, createdAt])
+  @@index([userId, status])
+}
+
+model Memory {
+  id        String   @id @default(uuid()) @db.Uuid
+  content   String
+  source    String?
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+}
+
+model UserSettings {
+  userId                 String  @id @db.Uuid
+  defaultAgentId         String  @default("general")
+  theme                  String  @default("dark")
+  language               String  @default("en")
+  customInstructions     String?
+  streamingResponses     Boolean @default(true)
+  verboseResponses       Boolean @default(false)
+  autoSuggestFollowups   Boolean @default(true)
+  saveConversationHistory           Boolean @default(true)
+  emailNotifications                Boolean @default(true)
+  conversationResponses             Boolean @default(true)
+  documentProcessingNotifications   Boolean @default(true)
+  productUpdates                    Boolean @default(false)
+  securityAlerts                    Boolean @default(true)
+  allowDataTraining                 Boolean @default(false)
+  activityTracking                 Boolean @default(true)
+  codeSyntaxHighlighting           Boolean @default(true)
+  fontSize                          String  @default("medium")
+
+  user        User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  defaultAgent Agent @relation(fields: [defaultAgentId], references: [id], onDelete: Restrict)
+
+  @@index([defaultAgentId])
+}
+
+
+model DocumentCollection {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  userId      String   @db.Uuid
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  documents DocumentCollectionItem[]
+
+  @@unique([userId, name])
+  @@index([userId, updatedAt])
+}
+
+model DocumentCollectionItem {
+  collectionId String @db.Uuid
+  documentId   String @db.Uuid
+  addedAt      DateTime @default(now())
+
+  collection DocumentCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  document   Document           @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([collectionId, documentId])
+  @@index([documentId])
+}
+
+
+model ProductivityTask {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @db.Uuid
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("medium")
+  dueAt       DateTime?
+  completedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, dueAt])
+  @@index([userId, updatedAt])
+}
+
+model SavedPrompt {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  title     String
+  prompt    String
+  category  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+  @@unique([userId, title])
+}
+
+model WorkspaceNote {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @db.Uuid
+  action    String
+  resource  String?
+  metadata  Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}

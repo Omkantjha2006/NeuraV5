@@ -1,0 +1,2 @@
+-- Phase 12 uses the existing Memory and UserSettings tables.
+-- No schema change is required.

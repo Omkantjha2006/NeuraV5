@@ -1,0 +1,562 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    /* Prevent iOS/Android from doing weird horizontal rubber-banding
+       when a component briefly overflows during animation/resize. */
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #0a0e1a;
+    color: #e2e8f0;
+    /* Removes the grey flash / highlight box Android/iOS draw on tap,
+       and cuts the ~300ms tap delay on elements meant to be tapped. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+
+  /*
+   * iOS Safari zooms the whole page in when a form field's computed
+   * font-size is under 16px. Our text-sm inputs are 14px, so on phones
+   * only, bump every text input/textarea/select to 16px to stop that
+   * zoom-on-focus behavior. Desktop/tablet keep the original size.
+   */
+  @media (max-width: 767px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px !important;
+    }
+  }
+
+  html.font-size-small { font-size: 90%; }
+  html.font-size-medium { font-size: 100%; }
+  html.font-size-large { font-size: 112%; }
+
+  html[data-theme='midnight'] body {
+    background-color: #020617;
+    color: #e2e8f0;
+  }
+
+  /*
+   * Midnight is a true-black variant of the default dark theme: same
+   * light-on-dark text (no color flips needed — .text-white etc. already
+   * have full contrast on a near-black background), but every surface
+   * that has an explicit dark-theme color (app background, glass panels)
+   * needs its own override here, or it keeps showing the default dark
+   * theme's slate-blue tones instead of true black.
+   */
+  html[data-theme='midnight'] .app-bg {
+    background-color: #020617;
+    background-image: radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(6, 182, 212, 0.04) 0%, transparent 50%), radial-gradient(ellipse at 50% 50%, rgba(30, 64, 175, 0.03) 0%, transparent 70%);
+  }
+
+  html[data-theme='midnight'] .glass,
+  html[data-theme='midnight'] .glass-subtle,
+  html[data-theme='midnight'] .glass-panel {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  html[data-theme='midnight'] .glass-strong,
+  html[data-theme='midnight'] .glass-overlay,
+  html[data-theme='midnight'] .glass-dropdown,
+  html[data-theme='midnight'] .glass-modal {
+    background-color: rgba(2, 6, 23, 0.97);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  html[data-theme='light'] body {
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  html[data-theme='light'] .app-bg {
+    background-color: #f8fafc;
+    background-image: radial-gradient(ellipse at 20% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(6, 182, 212, 0.06) 0%, transparent 50%);
+  }
+
+  html[data-theme='light'] .glass,
+  html[data-theme='light'] .glass-subtle,
+  html[data-theme='light'] .glass-panel {
+    background-color: rgba(255, 255, 255, 0.72);
+    border-color: rgba(15, 23, 42, 0.10);
+    color: #0f172a;
+  }
+
+  html[data-theme='light'] .glass-strong,
+  html[data-theme='light'] .glass-overlay,
+  html[data-theme='light'] .glass-dropdown,
+  html[data-theme='light'] .glass-modal {
+    background-color: rgba(255, 255, 255, 0.96);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: #0f172a;
+  }
+
+  html[data-theme='light'] .text-white { color: #0f172a !important; }
+  html[data-theme='light'] .text-ink-300 { color: #334155 !important; }
+  html[data-theme='light'] .text-ink-400 { color: #475569 !important; }
+  html[data-theme='light'] .text-ink-500 { color: #64748b !important; }
+  html[data-theme='light'] .placeholder-ink-500::placeholder { color: #64748b; }
+
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.2);
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.4);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+@layer components {
+
+  /* =========================================================
+     GLASSMORPHISM SYSTEM
+     ========================================================= */
+
+  /*
+   * Normal glass
+   * Used for cards, inputs and general UI surfaces.
+   */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  /*
+   * Strong glass
+   * More opaque than normal glass.
+   * Used for important panels.
+   */
+  .glass-strong {
+    @apply bg-ink-800/90 backdrop-blur-2xl border border-white/15;
+  }
+
+  /*
+   * Overlay glass
+   * Specifically designed for:
+   * - Dropdowns
+   * - Popovers
+   * - Menus
+   * - Agent selector
+   * - Modal content
+   *
+   * High opacity prevents background content from
+   * visually bleeding through the glass.
+   */
+  .glass-overlay {
+    @apply bg-ink-800/95 backdrop-blur-2xl border border-white/15 shadow-2xl;
+  }
+
+  /*
+   * Subtle glass
+   * Used for low-priority surfaces.
+   */
+  .glass-subtle {
+    @apply bg-white/[0.03] backdrop-blur-md border border-white/[0.06];
+  }
+
+  /*
+   * Glass panel
+   * Used for larger application panels.
+   */
+  .glass-panel {
+    @apply bg-ink-900/70 backdrop-blur-xl border border-white/10;
+  }
+
+
+  /* =========================================================
+     GLASS HOVER
+     ========================================================= */
+
+  .glass-hover {
+    @apply transition-all duration-200
+      hover:bg-white/10
+      hover:border-white/20;
+  }
+
+
+  /* =========================================================
+     OVERLAY / DROPDOWN HELPERS
+     ========================================================= */
+
+  /*
+   * Use this when an overlay must appear above
+   * surrounding application content.
+   */
+  .glass-dropdown {
+    @apply bg-ink-800/95
+      backdrop-blur-2xl
+      border
+      border-white/15
+      shadow-2xl
+      isolate;
+  }
+
+  /*
+   * Modal background
+   */
+  .glass-modal {
+    @apply bg-ink-900/95
+      backdrop-blur-2xl
+      border
+      border-white/15
+      shadow-2xl
+      isolate;
+  }
+
+
+  /* =========================================================
+     GLOW EFFECTS
+     ========================================================= */
+
+  .glow-primary {
+    box-shadow:
+      0 0 24px rgba(59, 130, 246, 0.2),
+      0 0 8px rgba(59, 130, 246, 0.1);
+  }
+
+  .glow-accent {
+    box-shadow:
+      0 0 24px rgba(6, 182, 212, 0.2),
+      0 0 8px rgba(6, 182, 212, 0.1);
+  }
+
+  .glow-primary-lg {
+    box-shadow:
+      0 0 40px rgba(59, 130, 246, 0.25),
+      0 0 16px rgba(59, 130, 246, 0.15);
+  }
+
+
+  /* =========================================================
+     GRADIENT TEXT
+     ========================================================= */
+
+  .text-gradient {
+    @apply bg-clip-text
+      text-transparent
+      bg-gradient-to-r
+      from-primary-400
+      via-accent-400
+      to-primary-500;
+  }
+
+  .text-gradient-soft {
+    @apply bg-clip-text
+      text-transparent
+      bg-gradient-to-r
+      from-primary-300
+      to-accent-300;
+  }
+
+
+  /* =========================================================
+     APPLICATION BACKGROUND
+     ========================================================= */
+
+  .app-bg {
+    background-color: #0a0e1a;
+
+    background-image:
+      radial-gradient(
+        ellipse at 20% 0%,
+        rgba(59, 130, 246, 0.08) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at 80% 100%,
+        rgba(6, 182, 212, 0.06) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        ellipse at 50% 50%,
+        rgba(30, 64, 175, 0.04) 0%,
+        transparent 70%
+      );
+  }
+
+  .landing-bg {
+    background-color: #070b15;
+
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 50% -20%,
+        rgba(59, 130, 246, 0.15) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 50% at 80% 50%,
+        rgba(6, 182, 212, 0.08) 0%,
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse 60% 50% at 20% 80%,
+        rgba(37, 99, 235, 0.06) 0%,
+        transparent 60%
+      );
+  }
+
+
+  /* =========================================================
+     BUTTONS
+     ========================================================= */
+
+  .btn-primary {
+    @apply inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      bg-primary-500
+      px-5
+      py-2.5
+      text-sm
+      font-medium
+      text-white
+      transition-all
+      duration-200
+      hover:bg-primary-600
+      active:scale-[0.98]
+      disabled:opacity-50
+      disabled:pointer-events-none;
+  }
+
+  .btn-ghost {
+    @apply inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      px-4
+      py-2.5
+      text-sm
+      font-medium
+      text-ink-300
+      transition-all
+      duration-200
+      hover:bg-white/5
+      hover:text-white;
+  }
+
+  .btn-glass {
+    @apply inline-flex
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      glass
+      px-5
+      py-2.5
+      text-sm
+      font-medium
+      text-white
+      transition-all
+      duration-200
+      hover:bg-white/10
+      hover:border-white/20
+      active:scale-[0.98];
+  }
+
+
+  /* =========================================================
+     INPUTS
+     ========================================================= */
+
+  .input-glass {
+    @apply w-full
+      rounded-xl
+      glass
+      px-4
+      py-3
+      text-sm
+      text-white
+      placeholder-ink-500
+      transition-all
+      duration-200
+      focus:outline-none
+      focus:border-primary-400/50
+      focus:ring-2
+      focus:ring-primary-500/20;
+  }
+
+
+  /* =========================================================
+     AGENT AVATARS
+     ========================================================= */
+
+  .agent-ring {
+    @apply relative
+      rounded-2xl
+      ring-2
+      ring-transparent
+      transition-all
+      duration-200;
+  }
+
+  .agent-ring-active {
+    @apply ring-2
+      ring-primary-400/60
+      glow-primary;
+  }
+
+
+  /* =========================================================
+     TYPING INDICATOR
+     ========================================================= */
+
+  .typing-dot {
+    @apply inline-block
+      w-1.5
+      h-1.5
+      rounded-full
+      bg-current
+      animate-bounce-dot;
+  }
+
+
+  /* =========================================================
+     SHIMMER
+     ========================================================= */
+
+  .shimmer-bg {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 75%
+    );
+
+    background-size: 200% 100%;
+
+    @apply animate-shimmer;
+  }
+
+
+  /* =========================================================
+     CODE BLOCK
+     ========================================================= */
+
+  .code-block {
+    @apply rounded-lg
+      bg-ink-950/60
+      border
+      border-white/5
+      font-mono
+      text-sm
+      text-ink-200
+      p-4
+      overflow-x-auto;
+  }
+}
+
+
+@layer utilities {
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mask-fade-bottom {
+    mask-image: linear-gradient(
+      to bottom,
+      black 90%,
+      transparent 100%
+    );
+
+    -webkit-mask-image: linear-gradient(
+      to bottom,
+      black 90%,
+      transparent 100%
+    );
+  }
+
+  /*
+   * Useful for dropdowns and floating elements.
+   * Creates a new stacking context.
+   */
+  .isolate {
+    isolation: isolate;
+  }
+
+  /*
+   * =========================================================
+   * MOBILE / SAFE-AREA HELPERS
+   * =========================================================
+   * `100vh` on phones includes space the browser's address/tab bar
+   * will occupy, so a `h-screen` layout gets clipped or leaves a gap
+   * as that bar shows/hides. `100dvh` tracks the *actual* visible
+   * viewport, with `100vh` kept as a fallback for older browsers.
+   */
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .min-h-app-shell {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* Padding that respects the iPhone notch / Dynamic Island, the
+     Android/iOS gesture home-indicator bar, and rounded corners in
+     landscape — falls back to 0 on devices/browsers without insets. */
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+}

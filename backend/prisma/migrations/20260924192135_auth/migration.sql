@@ -1,0 +1,6 @@
+-- Authentication schema is included in the initial schema migration:
+-- 20260924230000_init
+--
+-- This migration is intentionally retained as a no-op to preserve the
+-- existing migration history while allowing the migration chain to be
+-- applied cleanly to a fresh database/shadow database.
