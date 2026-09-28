@@ -19,7 +19,7 @@ export function LoginPage() {
   const [passwordTouched, setPasswordTouched] = useState(false);
 
   const emailError = emailTouched && !email.includes('@') ? t('auth.errors.invalidEmail') : '';
-  const passwordError = passwordTouched && password.length < 8 ? t('auth.errors.passwordMin6') : '';
+  const passwordError = passwordTouched && password.length < 8 ? t('auth.errors.passwordMin8') : '';
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
