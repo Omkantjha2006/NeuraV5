@@ -1,9 +1,20 @@
-import { app } from '../src/app.js';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+let appPromise: Promise<typeof import('../src/app.js')> | undefined;
+
+function getApp() {
+  appPromise ??= import('../src/app.js');
+  return appPromise;
+}
 
 /**
- * Vercel serverless entry point for the Express API.
+ * Vercel serverless entry point for the existing Express API.
  *
- * The catch-all function keeps the existing /api/* Express routes intact
- * while allowing the backend to run as a Vercel Node.js Function.
+ * The Express application is loaded lazily so Vercel can bundle the function
+ * without executing environment validation/Prisma initialization during the
+ * deployment build step.
  */
-export default app;
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  const { app } = await getApp();
+  return app(req, res);
+}
