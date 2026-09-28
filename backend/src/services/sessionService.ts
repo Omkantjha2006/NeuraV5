@@ -22,7 +22,7 @@ export async function createSession(userId: string, res: Response) {
   res.cookie(env.SESSION_COOKIE_NAME, rawToken, {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: env.SESSION_COOKIE_SAMESITE,
     expires: expiresAt,
     path: '/',
   });
@@ -38,7 +38,7 @@ export async function destroySession(rawToken: string | undefined, res: Response
   res.clearCookie(env.SESSION_COOKIE_NAME, {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: env.SESSION_COOKIE_SAMESITE,
     path: '/',
   });
 }
