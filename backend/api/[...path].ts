@@ -1,5 +1,3 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
 let appPromise: Promise<typeof import('../src/app.js')> | undefined;
 
 function getApp() {
@@ -14,7 +12,7 @@ function getApp() {
  * without executing environment validation/Prisma initialization during the
  * deployment build step.
  */
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   const { app } = await getApp();
   return app(req, res);
 }
