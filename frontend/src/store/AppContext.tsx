@@ -63,6 +63,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const path = window.location.pathname.replace(/^\//, '');
     if (path === 'reset-password') return 'reset-password';
     if (path === 'forgot-password') return 'forgot-password';
+    if (path === 'signin') return 'login';
+    if (path === 'signup') return 'register';
     return 'landing';
   });
   const [user, setUserState] = useState<User | null>(null);
@@ -125,7 +127,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined' && window.innerWidth < 1024) {
       setSidebarOpen(false);
     }
-    const path = r === 'landing' ? '/' : `/${r}`;
+    const browserPath = r === 'landing' ? '/' : r === 'login' ? '/signin' : r === 'register' ? '/signup' : `/${r}`;
+    const path = browserPath;
     const search = r === 'reset-password' ? window.location.search : '';
     if (window.location.pathname !== path || window.location.search !== search) window.history.pushState({ route: r }, '', `${path}${search}`);
   }, []);
