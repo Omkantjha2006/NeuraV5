@@ -43,7 +43,7 @@ function cookieOptions(expires?: Date) {
   return {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax' as const,
+    sameSite: env.SESSION_COOKIE_SAMESITE,
     ...(expires ? { expires } : {}),
     path: '/',
   };
@@ -192,7 +192,13 @@ authRouter.get('/google/callback', async (req, res, next) => {
     const expectedState = req.cookies?.[env.GOOGLE_STATE_COOKIE_NAME] as string | undefined;
     res.clearCookie(env.GOOGLE_STATE_COOKIE_NAME, cookieOptions());
 
-    if (!code || !state || !expectedState || !crypto.timingSafeEqual(Buffer.from(state), Buffer.from(expectedState))) {
+    if (
+      !code ||
+      !state ||
+      !expectedState ||
+      state.length !== expectedState.length ||
+      !crypto.timingSafeEqual(Buffer.from(state), Buffer.from(expectedState))
+    ) {
       throw new AppError(400, 'Invalid Google OAuth state', 'INVALID_OAUTH_STATE');
     }
 
