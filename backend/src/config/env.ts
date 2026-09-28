@@ -7,6 +7,7 @@ const schema = z.object({
   FRONTEND_URL: z.string().url().default('http://localhost:5173'),
   DATABASE_URL: z.string().min(1),
   SESSION_COOKIE_NAME: z.string().default('neura_session'),
+  SESSION_COOKIE_SAMESITE: z.enum(['lax', 'strict', 'none']).default('lax'),
   SESSION_TTL_DAYS: z.coerce.number().int().positive().default(30),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
