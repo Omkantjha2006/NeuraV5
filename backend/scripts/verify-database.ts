@@ -17,14 +17,29 @@ async function main() {
     WHERE table_schema = 'public'
       AND table_name IN (
         'User','Agent','OAuthAccount','Session','PasswordResetToken',
-        'Conversation','Message','Document','Memory','UserSettings'
+        'Conversation','Message','Document','Memory','UserSettings',
+        'DocumentCollection','DocumentCollectionItem','ProductivityTask','SavedPrompt','WorkspaceNote','AuditLog','SharedMessage'
       )
     ORDER BY table_name
   `;
-  if (tables.length !== 10) {
-    throw new Error(`Expected 10 application tables, found ${tables.length}`);
+  const expectedTableCount = 17;
+  if (tables.length !== expectedTableCount) {
+    throw new Error(`Expected ${expectedTableCount} application tables, found ${tables.length}`);
   }
-  console.log(`✓ Core tables present (${tables.length}/10)`);
+  console.log(`✓ Core application tables present (${tables.length}/${expectedTableCount})`);
+
+  const vectorExtension = await prisma.$queryRaw<Row[]>`
+    SELECT extname AS name FROM pg_extension WHERE extname = 'vector'
+  `;
+  if (vectorExtension.length !== 1) throw new Error('Missing PostgreSQL pgvector extension.');
+  console.log('✓ pgvector extension present');
+
+  const ragTable = await prisma.$queryRaw<Row[]>`
+    SELECT table_name AS name FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'document_chunks'
+  `;
+  if (ragTable.length !== 1) throw new Error('Missing document_chunks RAG table.');
+  console.log('✓ RAG document_chunks table present');
 
   const enums = await prisma.$queryRaw<Row[]>`
     SELECT t.typname AS name
