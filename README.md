@@ -1,6 +1,6 @@
 # Neura V5
 
-> A full-stack, multi-user AI assistant platform with specialized AI agents, persistent conversations, document intelligence, RAG, memory, research, study tools, developer tools, analytics, and production-oriented architecture.
+> A full-stack, multi-user AI assistant platform with specialized AI agents, persistent conversations, document intelligence, RAG, memory, research, study tools, analytics, and production-oriented architecture.
 
 ## Overview
 
@@ -17,7 +17,6 @@ The platform combines:
 - Personal AI memory
 - Web research
 - Study and productivity tools
-- Developer tools
 - Dashboard and analytics
 - Configurable AI providers
 - PostgreSQL-based persistent storage
@@ -215,19 +214,6 @@ Neura Study is designed to provide:
 - Question solving
 - Revision mode
 
-### Developer Mode
-
-Developer-oriented functionality includes:
-
-- Code explanation
-- Debugging
-- Refactoring
-- Optimization
-- Test generation
-- GitHub integration architecture
-- Repository analysis
-- Secure code execution architecture
-
 ### Productivity
 
 Productivity functionality includes:
@@ -418,7 +404,6 @@ Express API
    +── Analytics
    +── Productivity
    +── Study
-   +── Developer
    +── User
    +── Settings
 ```
@@ -654,8 +639,6 @@ Phase 14  Web Research
     ↓
 Phase 15  Study Mode
     ↓
-Phase 16  Developer Mode
-    ↓
 Phase 17  Productivity
     ↓
 Phase 18  Dashboard & Analytics
@@ -756,7 +739,6 @@ Neura V5 is being developed with the following long-term goals:
 - Provide document-aware AI interactions
 - Support research workflows
 - Support study and productivity workflows
-- Provide developer-focused AI tools
 - Maintain a modular AI-provider architecture
 - Maintain secure multi-user data isolation
 - Provide a scalable production architecture

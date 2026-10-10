@@ -23,7 +23,6 @@
     "rag:smoke": "tsx scripts/rag-smoke-test.ts",
     "memory:smoke": "tsx scripts/memory-smoke-test.ts",
     "ai:smoke": "tsx scripts/ai-gateway-smoke-test.ts",
-    "developer:smoke": "tsx scripts/developer-smoke-test.ts",
     "test": "cross-env NODE_ENV=test tsx --test test/**/*.test.ts",
     "test:watch": "cross-env NODE_ENV=test tsx --test --watch test/**/*.test.ts",
     "test:coverage": "cross-env NODE_ENV=test c8 tsx --test test/**/*.test.ts",

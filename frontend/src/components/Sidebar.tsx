@@ -6,7 +6,7 @@ import { Dropdown, type MenuItem } from '@/components/Dropdown';
 import {
   Search, Plus, MessageSquare, Pin, Archive, Trash2, Edit3,
   Settings, ChevronLeft, ChevronRight, MoreHorizontal, X,
-  LayoutDashboard, FileText, User, GraduationCap, Code2, ListTodo, BarChart3,
+  LayoutDashboard, FileText, User, GraduationCap, ListTodo, BarChart3,
 } from 'lucide-react';
 import type { Conversation, ConversationGroup } from '@/types';
 
@@ -122,7 +122,6 @@ export function Sidebar() {
     { label: t('sidebar.nav.dashboard'), icon: <LayoutDashboard size={18} />, route: 'dashboard' as const },
     { label: t('sidebar.nav.documents'), icon: <FileText size={18} />, route: 'documents' as const },
     { label: t('sidebar.nav.study'), icon: <GraduationCap size={18} />, route: 'study' as const },
-    { label: t('sidebar.nav.developer'), icon: <Code2 size={18} />, route: 'developer' as const },
     { label: t('sidebar.nav.productivity'), icon: <ListTodo size={18} />, route: 'productivity' as const },
     { label: t('sidebar.nav.analytics'), icon: <BarChart3 size={18} />, route: 'analytics' as const },
   ];

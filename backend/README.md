@@ -4,7 +4,7 @@ Node.js + Express + TypeScript backend for Neura V5.
 
 > **Current status:** production-shaped backend with auth, RAG, memory,
 > multi-model AI gateway, live web research, a multi-agent system, and
-> study/developer/productivity/analytics modules already implemented (see
+> study/productivity/analytics modules already implemented (see
 > [Feature status](#feature-status) below). The "Phase 3 scope" section
 > further down describes only the original Express foundation and is kept
 > for history — it does **not** describe the current state of the codebase.
@@ -19,7 +19,7 @@ Node.js + Express + TypeScript backend for Neura V5.
 > **Before shipping any change**, run the full verification suite:
 > `npm run typecheck`, `npm run build`, `npm test`, and every smoke script
 > (`auth:smoke`, `agents:smoke`, `documents:smoke`, `rag:smoke`,
-> `memory:smoke`, `ai:smoke`, `developer:smoke`). This project was audited
+> `memory:smoke`, `ai:smoke`). This project was audited
 > by static code review only (no `node_modules`/network in the review
 > sandbox) — none of the above has actually been executed yet.
 
@@ -40,7 +40,6 @@ This reflects what's actually in the codebase today, per mounted route (`src/app
 | AI gateway | `/api/ai` | Implemented | Multi-provider (Gemini + OpenAI-compatible) |
 | Research | `/api/research` | Implemented | Tavily-backed web search + AI briefs |
 | Study | `/api/study` | Implemented | |
-| Developer | `/api/developer` | Implemented, execution opt-in | Code explain/GitHub analysis always on; sandboxed `docker run` execution gated by `CODE_EXECUTION_ENABLED` — see `.env.example` and `GET /api/developer/status` |
 | Productivity | `/api/productivity` | Implemented | |
 | Analytics | `/api/analytics` | Implemented | |
 | Billing / subscriptions | — | **Not implemented** | No billing provider, no subscription models/routes exist anywhere in this backend. There is nothing here to back a "Manage Subscription" button — remove it from the frontend rather than leaving a dead control in production. |

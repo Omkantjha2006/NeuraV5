@@ -124,7 +124,6 @@ export type Route =
   | 'settings'
   | 'profile'
   | 'study'
-  | 'developer'
   | 'productivity'
   | 'analytics';
 

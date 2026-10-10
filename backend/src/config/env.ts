@@ -40,8 +40,6 @@ const schema = z.object({
   RAG_TOP_K: z.coerce.number().int().positive().max(20).default(6),
   RAG_CHUNK_SIZE: z.coerce.number().int().positive().min(200).max(5000).default(1200),
   RAG_CHUNK_OVERLAP: z.coerce.number().int().nonnegative().min(0).max(1000).default(200),
-  GITHUB_TOKEN: z.string().optional(),
-  CODE_EXECUTION_ENABLED: z.enum(['true', 'false']).default('false'),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(300),
   AUTH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(20),

@@ -13,7 +13,6 @@ import { DocumentsPage } from '@/pages/DocumentsPage';
 import { SettingsPage } from '@/pages/SettingsPage';
 import { ProfilePage } from '@/pages/ProfilePage';
 import { StudyPage } from '@/pages/StudyPage';
-import { DeveloperPage } from '@/pages/DeveloperPage';
 import { ProductivityPage } from '@/pages/ProductivityPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
 import { useEffect } from 'react';
@@ -107,7 +106,6 @@ function AppLayout() {
           {route === 'settings' && <SettingsPage />}
           {route === 'profile' && <ProfilePage />}
           {route === 'study' && <StudyPage />}
-          {route === 'developer' && <DeveloperPage />}
           {route === 'productivity' && <ProductivityPage />}
           {route === 'analytics' && <AnalyticsPage />}
           {(route === 'chat' || !route) && <ChatArea />}

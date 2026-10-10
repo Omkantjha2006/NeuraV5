@@ -595,31 +595,6 @@ export const studyService = {
 };
 
 
-export const developerService = {
-  async explain(code: string, language: string, task: string) {
-    return apiFetch<{ result: string; agentId: string; provider: string; model: string }>('/api/developer/explain', {
-      method: 'POST',
-      body: JSON.stringify({ code, language, task }),
-    });
-  },
-  async analyzeRepository(repository: string, question?: string) {
-    return apiFetch<{ repository: string; defaultBranch: string; stars: number; language: string | null; truncated: boolean; filesInspected: string[]; analysis: string }>('/api/developer/github/analyze', {
-      method: 'POST',
-      body: JSON.stringify({ repository, question }),
-    });
-  },
-  execute(code: string, language: 'javascript' | 'python') {
-    return apiFetch<{ stdout: string; stderr: string; timedOut: boolean }>('/api/developer/execute', {
-      method: 'POST',
-      body: JSON.stringify({ code, language }),
-    });
-  },
-  status() {
-    return apiFetch<{ available: boolean; enabled: boolean; dockerDetected: boolean | null; reason: string | null }>('/api/developer/status');
-  },
-};
-
-
 export const productivityService = {
   async tasks(): Promise<import('@/types').ProductivityTask[]> { const d=await apiFetch<{tasks: import('@/types').ProductivityTask[]}>('/api/productivity/tasks'); return d.tasks; },
   async createTask(data: {title:string;description?:string;priority?:string;dueAt?:string}) { const d=await apiFetch<{task: import('@/types').ProductivityTask}>('/api/productivity/tasks',{method:'POST',body:JSON.stringify(data)}); return d.task; },
