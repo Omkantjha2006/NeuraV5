@@ -25,8 +25,7 @@
     "ai:smoke": "tsx scripts/ai-gateway-smoke-test.ts",
     "test": "cross-env NODE_ENV=test tsx --test test/**/*.test.ts",
     "test:watch": "cross-env NODE_ENV=test tsx --test --watch test/**/*.test.ts",
-    "test:coverage": "cross-env NODE_ENV=test c8 tsx --test test/**/*.test.ts",
-    "postinstall": "prisma generate"
+    "test:coverage": "cross-env NODE_ENV=test c8 tsx --test test/**/*.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.16.0",

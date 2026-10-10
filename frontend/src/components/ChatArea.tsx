@@ -1,5 +1,6 @@
 import { Fragment, useState, useRef, useEffect, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
 import { useApp } from '@/store/AppContext';
+import { shareService } from '@/services/api';
 import { useTranslation } from '@/i18n/I18nContext';
 import { AgentAvatar } from '@/components/AgentAvatar';
 import {
@@ -235,9 +236,10 @@ function CodeBlock({ code, lang }: { code: string; lang: string }) {
 }
 
 function MessageActions({ message }: { message: Message }) {
-  const { regenerateLast, deleteMessage, setMessageFeedback } = useApp();
+  const { regenerateLast, deleteMessage, setMessageFeedback, activeConversationId } = useApp();
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const [shareError, setShareError] = useState('');
   const [feedback, setFeedback] = useState<'positive' | 'negative' | null>(message.feedback ?? null);
 
   const handleCopy = () => {
@@ -247,18 +249,24 @@ function MessageActions({ message }: { message: Message }) {
   };
 
   const handleShare = async () => {
-    if (typeof navigator.share === 'function') {
-      try {
-        await navigator.share({ text: message.content });
-        return;
-      } catch (err) {
-        // User cancelled the native share sheet — do nothing.
-        if (err instanceof DOMException && err.name === 'AbortError') return;
-        // Any other failure (e.g. share API present but rejected the payload) falls through to copy below.
+    if (!activeConversationId) return;
+    setShareError('');
+    try {
+      const { url } = await shareService.create(activeConversationId, message.id);
+      if (typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ url });
+          return;
+        } catch (err) {
+          if (err instanceof DOMException && err.name === 'AbortError') return;
+        }
       }
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      setShareError(error instanceof Error ? error.message : 'Unable to create a share link.');
     }
-    // No native share support (most desktop browsers): copy to clipboard instead.
-    handleCopy();
   };
 
   if (message.isStreaming) return null;
@@ -286,6 +294,7 @@ function MessageActions({ message }: { message: Message }) {
           {a.icon}
         </button>
       ))}
+      {shareError && <span role="alert" className="text-xs text-red-300 ml-2">{shareError}</span>}
     </div>
   );
 }

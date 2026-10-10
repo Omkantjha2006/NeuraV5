@@ -543,8 +543,6 @@ npx prisma db seed
 
 Start the backend using the project's configured npm script.
 
-For production, use `npm run prisma:migrate:deploy` during deployment. Do not use `prisma db push` or `prisma migrate reset` against production. The RAG `document_chunks` table is managed by raw SQL migrations because it uses pgvector.
-
 ## Frontend Setup
 
 Open another terminal:
@@ -592,10 +590,9 @@ DATABASE_URL
 GEMINI_API_KEY
 GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
-SESSION_COOKIE_NAME
-SESSION_COOKIE_SAMESITE
+SESSION_SECRET
 FRONTEND_URL
-PORT
+BACKEND_URL
 ```
 
 The exact variables required by the current implementation are defined in the project's `.env.example` files.
@@ -669,11 +666,6 @@ Move to Next Phase
 ---
 
 # Production Deployment
-
-### Cross-origin authentication
-
-If the frontend and backend are hosted on different sites (for example, a Vercel frontend and a Render backend), set `FRONTEND_URL` to the exact frontend origin and set `SESSION_COOKIE_SAMESITE=none`. Production cookies are automatically marked `Secure`. For same-site/local development, keep `SESSION_COOKIE_SAMESITE=lax`.
-
 
 The target production architecture is:
 

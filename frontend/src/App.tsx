@@ -15,6 +15,7 @@ import { ProfilePage } from '@/pages/ProfilePage';
 import { StudyPage } from '@/pages/StudyPage';
 import { ProductivityPage } from '@/pages/ProductivityPage';
 import { AnalyticsPage } from '@/pages/AnalyticsPage';
+import { SharedMessagePage } from '@/pages/SharedMessagePage';
 import { useEffect } from 'react';
 import { settingsService } from '@/services/api';
 
@@ -78,6 +79,9 @@ function UserPreferencesEffect() {
 
 function Router() {
   const { route, isAuthenticated } = useApp();
+  const shareMatch = window.location.pathname.match(/^\/share\/([^/]+)\/?$/);
+
+  if (shareMatch) return <SharedMessagePage token={decodeURIComponent(shareMatch[1])} />;
 
   // Auth pages
   if (route === 'landing') return <LandingPage />;

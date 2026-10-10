@@ -53,7 +53,7 @@ For a chronological history of how each area was built, see the `PHASE-*-README.
 - `DELETE /api/conversations/:conversationId/messages/:messageId/share` (auth required) → `204`, revokes the link.
 - `GET /api/share/:token` — **public, no auth**. Returns `{ content, agentName, conversationTitle, sharedAt }` for that one message only (a snapshot taken at share time, so later edits/deletes to the original don't affect it), or `404 SHARE_NOT_FOUND` if the token is unknown/revoked.
 
-Frontend integration: wire the chat message's Share button to `POST .../share`, then either copy `url` to the clipboard or open a share sheet with it, instead of aliasing to Copy. A public `/share/:token` page (rendering the `GET /api/share/:token` response) needs to exist on the frontend for links to be openable by recipients.
+Frontend integration is implemented: the chat Share action creates a link through `POST .../share`, then opens the native share sheet or copies the URL. The public `/share/:token` page renders the response from `GET /api/share/:token` without requiring sign-in.
 
 ## Phase 3 scope (historical)
 

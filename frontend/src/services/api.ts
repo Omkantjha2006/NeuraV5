@@ -289,6 +289,31 @@ export const conversationService = {
   },
 };
 
+export type SharedMessage = {
+  content: string;
+  agentName: string | null;
+  conversationTitle: string;
+  sharedAt: string;
+};
+
+export const shareService = {
+  async create(conversationId: string, messageId: string): Promise<{ shareId: string; url: string }> {
+    if (useMock()) throw new Error('Sharing is available when live API mode is enabled.');
+    return apiFetch<{ shareId: string; url: string }>(`/api/conversations/${encodeURIComponent(conversationId)}/messages/${encodeURIComponent(messageId)}/share`, {
+      method: 'POST',
+    });
+  },
+
+  async get(token: string): Promise<SharedMessage> {
+    const response = await fetch(`${appEnv.apiUrl}/api/share/${encodeURIComponent(token)}`);
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
+      throw new Error(payload?.error?.message ?? 'This shared link is unavailable.');
+    }
+    return response.json();
+  },
+};
+
 export async function* parseSse(
   body: ReadableStream<Uint8Array>,
   signal?: AbortSignal,
